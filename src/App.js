@@ -1,30 +1,26 @@
-import Categories from './components/Categories';
+import { Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
-import PizzaBlock from './components/PizzaBlock';
-import Sort from './components/Sort';
+import Home from './pages/Home';
+import NotFound from './pages/NotFound';
 import './scss/app.scss';
-import pizzas from './assets/db.json';
-import { Fragment } from 'react';
+import Cart from './pages/Cart';
+import { useState } from 'react';
 
 
 function App() {
+  const [searchId, setSearchId] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [postsPerPage, setPostsPerPage] = useState(4)
   return (
     <div className="wrapper">
-      <Header />
+      <Header searchId={searchId} setSearchId={setSearchId} />
       <div className="content">
         <div className="container">
-          <div className="content__top">
-            <Categories />
-            <Sort />
-          </div>
-          <h2 className="content__title">Все пиццы</h2>
-          <div className="content__items">
-            {pizzas.map((obj) => (
-             
-                <PizzaBlock key={obj.id} {...obj} />
-             
-            ))}
-          </div>
+          <Routes>
+            <Route path='/' element={<Home searchId={searchId} setSearchId={setSearchId} />} />
+            <Route path='/cart' element={<Cart />} />
+            <Route path='*' element={<NotFound />} />
+          </Routes>
         </div>
       </div>
     </div>

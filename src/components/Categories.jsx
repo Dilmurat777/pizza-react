@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import { useContext } from "react";
+import { CustomContext } from "../config/context";
 
-const Categories = () => {
-  const [activeIndex, setActiveIndex] = useState(0)
-  const category = ['Все', 'Мясные', 'Вегетарианская', 'Гриль', 'Острые', 'Закрытые']
-  const onCategory = (index) => {
-    setActiveIndex(index)
-  }
+
+
+const Categories = ({valueCategory, onChangeCategory}) => {
+ 
+  const { categoryName } = useContext(CustomContext);
+
   return (
     <div className="categories">
       <ul>
         {
-          category.map((value, idx) => {
-            return <li key={idx} onClick={() => onCategory(idx)} className={activeIndex === idx ? 'active' : ''}>{value}</li>
+          categoryName.map((value, idx) => {
+            return <li key={idx} onClick={() => onChangeCategory(idx)} className={valueCategory === idx ? 'active' : ''}>{value}</li>
           })
         }
       </ul>
