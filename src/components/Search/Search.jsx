@@ -1,12 +1,41 @@
+import { useCallback, useRef, useState } from 'react';
+import debounce from 'lodash.debounce';
 import styles from './Search.module.scss';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSearchId } from '../../redux/slices/filterSlice';
 
-const Search = ({ searchId, setSearchId }) => {
+const Search = () => {
+  const { searchId } = useSelector((state) => state.filter.searchId)
+  const dispatch = useDispatch()
+  const [value, setValue] = useState('')
+  const inputRef = useRef(null);
+
+  const updateSearchValue = useCallback(
+    debounce((str) => {
+      dispatch(setSearchId(str))
+    }, 700),
+    [],
+  );
+
+  const onChangeInput = (e) => {
+    setValue(e.target.value);
+    updateSearchValue(e.target.value)
+  };
+
+
+
+  const clickClear = () => {
+    setSearchId('');
+    setValue('')
+    inputRef.current.focus();
+  };
 
   return (
     <div className={styles.search}>
       <input
-        value={searchId}
-        onChange={(e) => setSearchId(e.target.value)}
+        ref={inputRef}
+        value={value}
+        onChange={onChangeInput}
         className={styles.search_input}
         type="text"
         placeholder="Search pizza..."
@@ -28,7 +57,7 @@ const Search = ({ searchId, setSearchId }) => {
 
       {searchId && (
         <svg
-          onClick={() => setSearchId('')}
+          onClick={clickClear}
           xmlns="http://www.w3.org/2000/svg"
           width="24"
           height="24"

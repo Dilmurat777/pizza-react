@@ -1,18 +1,22 @@
-import { useContext } from "react";
-import { CustomContext } from "../config/context";
+import { useDispatch, useSelector } from "react-redux";
+import { setCategoryId } from "../redux/slices/filterSlice";
 
 
 
-const Categories = ({valueCategory, onChangeCategory}) => {
- 
-  const { categoryName } = useContext(CustomContext);
+
+
+
+const Categories = () => {
+  const dispatch = useDispatch()
+  const categoryId = useSelector((state) => state.filter.categoryId)
+  const categoryName = ['Все', 'Мясные', 'Вегетарианская', 'Гриль', 'Острые', 'Закрытые']
 
   return (
     <div className="categories">
       <ul>
         {
           categoryName.map((value, idx) => {
-            return <li key={idx} onClick={() => onChangeCategory(idx)} className={valueCategory === idx ? 'active' : ''}>{value}</li>
+            return <li key={idx} onClick={() => dispatch(setCategoryId(idx))} className={categoryId === idx ? 'active' : ''}>{value}</li>
           })
         }
       </ul>
