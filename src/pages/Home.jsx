@@ -1,55 +1,82 @@
 import PizzaBlock from '../components/PizzaBlock';
 import Skeleton from '../components/PizzaBlock/Skeleton';
-import Sort from '../components/Sort';
+import Sort, { sortList } from '../components/Sort';
 import Categories from '../components/Categories';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Pagination from '../components/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { setCurrentPage } from '../redux/slices/filterSlice';
+import { setCurrentPage, setFilters } from '../redux/slices/filterSlice';
+import qs from 'qs';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const { categoryId, sort, searchId, currentPage } = useSelector((state) => state.filter);
-  const dispatch = useDispatch()
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isSearch = useRef(false);
+  const isMounted = useRef(false);
 
-  const page = `${currentPage ? `page=${currentPage}&limit=4` : ''}`;
-
-  const sortBy = sort.sortProperty.replace('-', '');
-  const order = `${sort.sortProperty.includes('-') ? 'asc' : 'desc'}`;
-
-  const category = `${categoryId > 0 ? `&category=${categoryId}` : ''}`;
-
-  const search = searchId ? `&title=${encodeURIComponent(searchId)}` : '';
-
-  const urlApi = `https://67c6c90cc19eb8753e7750a7.mockapi.io/items?${page}${category}&sortBy=${sortBy}&order=${order}${search}`;
+  const fetchPizza = () => {
+    setIsLoading(true);
+    const page = `${currentPage ? `page=${currentPage}&limit=4` : ''}`;
+    const sortBy = sort.sortProperty.replace('-', '');
+    const order = `${sort.sortProperty.includes('-') ? 'asc' : 'desc'}`;
+    const category = `${categoryId > 0 ? `&category=${categoryId}` : ''}`;
+    const search = searchId ? `&title=${encodeURIComponent(searchId)}` : '';
+    axios
+      .get(
+        `https://67c6c90cc19eb8753e7750a7.mockapi.io/items?${page}${category}&sortBy=${sortBy}&order=${order}${search}`,
+      )
+      .then((res) => {
+        setItems(res.data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error('Ошибка при запросе данных:', err.response?.data || err.message);
+        setIsLoading(false);
+      });
+  };
 
   useEffect(() => {
-    setIsLoading(true);
-    // fetch(urlApi)
-    //   .then((res) => res.json())
-    //   .then((res) => {
-    //     setItems(res);
-    //     setIsLoading(false);
-    //     window.scrollTo(0, 0);
-    //   })
-    //   .catch((err) => {
-    //     console.error('Ошибка при запросе данных:', err);
-    //     setIsLoading(false);
-    //   });
+    if (window.location.search) {
+      const params = qs.parse(window.location.search.substring(1));
 
-    axios.get(urlApi).then((res) => {
-      setItems(res.data);
-      setIsLoading(false);
-      window.scrollTo(0, 0);
-    })
-    .catch((err) => {
-      console.error('Ошибка при запросе данных:', err.response?.data || err.message);
-      setIsLoading(false);
-        });
+      const sortFilter = sortList.find((obj) => obj.sortProperty === params.sort);
+      console.log(sortFilter);
+
+      dispatch(
+        setFilters({
+          ...params,
+          sortFilter,
+        }),
+      );
+      isSearch.current = true;
+      
+    }
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (!isSearch.current) {
+      fetchPizza();
+    }
+    isSearch.current = false
   }, [categoryId, sort, searchId, currentPage]);
+
+  useEffect(() => {
+    if (isMounted.current) {
+      const queryString = qs.stringify({
+        sort: sort.sortProperty,
+        categoryId,
+        currentPage,
+      });
+      navigate(`?${queryString}`);
+    }
+    isMounted.current = true;
+  }, [categoryId, sort, currentPage]);
 
   return (
     <>
@@ -81,7 +108,10 @@ const Home = () => {
           <p>Пиццы не найдены</p>
         )}
       </div>
-      <Pagination currentPage={currentPage} onChangePage={(number) => dispatch(setCurrentPage(number))} />
+      <Pagination
+        currentPage={currentPage}
+        onChangePage={(number) => dispatch(setCurrentPage(number))}
+      />
     </>
   );
 };
