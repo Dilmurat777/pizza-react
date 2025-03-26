@@ -7,7 +7,7 @@ const initialState = {
     name: 'популярности',
     sortProperty: 'rating',
   },
-  searchId: '',
+  value: '',
 }
 export const filterSlice = createSlice({
   name: 'filters',
@@ -22,6 +22,9 @@ export const filterSlice = createSlice({
     setSearchId: (state, action) => {
       state.searchId = action.payload
     },
+    setValue: (state, action) => {
+      state.value = action.payload
+    },
     setCurrentPage: (state, action) => {
       state.currentPage = action.payload
     },
@@ -33,6 +36,10 @@ export const filterSlice = createSlice({
   }
 })
 
-export const { setCategoryId, setSortTypeId, setSearchId, setCurrentPage, setFilters } = filterSlice.actions
+export const selectCategory = (state) => state.filter.categoryId
+export const selectSearch = (state) => state.filter
+export const selectFilter = (state) => state.filter
+
+export const { setCategoryId, setSortTypeId, setSearchId, setCurrentPage, setFilters, setValue } = filterSlice.actions
 
 export default filterSlice.reducer

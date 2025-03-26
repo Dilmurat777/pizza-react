@@ -1,13 +1,14 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef} from 'react';
 import debounce from 'lodash.debounce';
 import styles from './Search.module.scss';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSearchId } from '../../redux/slices/filterSlice';
+import { selectSearch, setSearchId, setValue } from '../../redux/slices/filterSlice';
 
 const Search = () => {
-  const { searchId } = useSelector((state) => state.filter.searchId)
+  const { value } = useSelector(selectSearch)
+  
   const dispatch = useDispatch()
-  const [value, setValue] = useState('')
+
   const inputRef = useRef(null);
 
   const updateSearchValue = useCallback(
@@ -18,15 +19,15 @@ const Search = () => {
   );
 
   const onChangeInput = (e) => {
-    setValue(e.target.value);
+    dispatch(setValue(e.target.value));
     updateSearchValue(e.target.value)
   };
 
 
 
   const clickClear = () => {
-    setSearchId('');
-    setValue('')
+    dispatch(setSearchId(''))
+    dispatch(setValue(''))
     inputRef.current.focus();
   };
 
@@ -55,7 +56,9 @@ const Search = () => {
         <path d="m21 21-4.3-4.3" />
       </svg>
 
-      {searchId && (
+      {value && (
+        
+        
         <svg
           onClick={clickClear}
           xmlns="http://www.w3.org/2000/svg"

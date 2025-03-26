@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { setSortTypeId } from '../redux/slices/filterSlice';
 import { useDispatch } from 'react-redux';
-
 
 export const sortList = [
   { name: 'популярности(DESC)', sortProperty: 'rating' },
@@ -13,14 +12,28 @@ export const sortList = [
 ];
 
 const Sort = ({ valueSort }) => {
-
-
+  const sortRef = useRef();
   const [open, setOpen] = useState(false);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const selectedItem = (idx) => {
-   dispatch(setSortTypeId(idx))
+    dispatch(setSortTypeId(idx));
     setOpen(false);
   };
+
+  useEffect(() => {
+
+    const handelClick = (event) => {
+      if (event.target !== sortRef.current) {
+        setOpen(false);
+      }
+    }
+    document.body.addEventListener('click', handelClick);
+
+    return () => {
+      document.body.removeEventListener('click', handelClick);
+      
+    }
+  }, []);
 
   return (
     <div className="sort">
@@ -37,7 +50,9 @@ const Sort = ({ valueSort }) => {
           />
         </svg>
         <b>Сортировка по:</b>
-        <span onClick={() => setOpen(!open)}>{valueSort.name}</span>
+        <span ref={sortRef} onClick={() => setOpen(!open)}>
+          {valueSort.name}
+        </span>
       </div>
       {open && (
         <div className="sort__popup">
