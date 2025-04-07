@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addItem, selectCartById } from '../../redux/slices/cartSlice';
+import { addItem, CartItem, selectCartById } from '../../redux/slices/cartSlice';
 import { Link } from 'react-router-dom';
 
-const PizzaBlock = ({ id, title, price, imageUrl, sizes, types }) => {
+type PizzaBlockProps = {
+  id: string;
+  title: string;
+  price: number;
+  imageUrl: string;
+  sizes: number[];
+  types: number[];
+};
+
+const PizzaBlock: React.FC<PizzaBlockProps> = ({ id, title, price, imageUrl, sizes, types }) => {
+  
   const [activeType, setActiveType] = useState(0);
   const [activeSize, setActiveSize] = useState(0);
   const categoryNames = ['тонкое', 'традиционное'];
@@ -12,13 +22,14 @@ const PizzaBlock = ({ id, title, price, imageUrl, sizes, types }) => {
   const count = cartItem ? cartItem.count : 0;
 
   const onClickAdd = () => {
-    const item = {
+    const item: CartItem = {
       id,
       title,
       price,
       imageUrl,
       type: categoryNames[activeType],
       size: sizes[activeSize],
+      count: 0
     };
     dispatch(addItem(item));
   };
@@ -31,17 +42,17 @@ const PizzaBlock = ({ id, title, price, imageUrl, sizes, types }) => {
       <h4 className="pizza-block__title">{title}</h4>
       <div className="pizza-block__selector">
         <ul>
-          {types.map((type) => (
+          {types.map((_, item: number) => (
             <li
-              key={type}
-              className={activeType === type ? 'active' : ''}
-              onClick={() => setActiveType(type)}>
-              {categoryNames[type]}
+              key={item}
+              className={activeType === item ? 'active' : ''}
+              onClick={() => setActiveType(item)}>
+              {categoryNames[item]}
             </li>
           ))}
         </ul>
         <ul>
-          {sizes.map((size, idx) => (
+          {sizes.map((size: number, idx: number) => (
             <li
               key={size}
               className={activeSize === idx ? 'active' : ''}
