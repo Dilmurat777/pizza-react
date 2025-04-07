@@ -2,10 +2,14 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const SinglePizza = () => {
+const SinglePizza: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [data, setData] = useState();
+  const [data, setData] = useState<{
+    imageUrl: string;
+    title: string;
+    price: number;
+  }>();
   useEffect(() => {
     const getSinglePage = async () => {
       try {
@@ -27,14 +31,19 @@ const SinglePizza = () => {
     <div>
       <div style={{ display: 'flex', columnCount: '20px' }}>
         <div>
-          <img src={data.imageUrl} alt="" />
+          <img className="single-page__img" src={data.imageUrl} alt="" />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', rowGap: '20px' }}>
           <h2>{data.title}</h2>
           <h2>{data.price} com</h2>
         </div>
-		  </div>
-		  <button onClick={() => navigate(-1)} style={{fontSize: '18px', display: 'flex', justifySelf: "anchor-center"}} className='button button--black'>GO Home page</button>
+      </div>
+      <button
+        onClick={() => navigate(-1)}
+        style={{ fontSize: '18px', display: 'flex', justifySelf: 'anchor-center' }}
+        className="button button--black">
+        GO Home page
+      </button>
     </div>
   );
 };

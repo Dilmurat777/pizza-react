@@ -1,8 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { setSortTypeId } from '../redux/slices/filterSlice';
-import { useDispatch } from 'react-redux';
+import { selectFilter, setSortTypeId } from '../redux/slices/filterSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
-export const sortList = [
+type sortItem = {
+  name: string;
+  sortProperty: 'rating' | 'title' | 'price' | '-rating' | '-title' | '-price'; 
+};
+
+
+export const sortList: sortItem[] = [
   { name: 'популярности(DESC)', sortProperty: 'rating' },
   { name: 'популярности(ASC)', sortProperty: '-rating' },
   { name: 'цене(DESC)', sortProperty: 'price' },
@@ -11,28 +17,27 @@ export const sortList = [
   { name: 'алфавиту(ASC)', sortProperty: '-title' },
 ];
 
-const Sort = ({ valueSort }) => {
-  const sortRef = useRef();
+const Sort: React.FC = () => {
+  const { sort } = useSelector(selectFilter);
+  const sortRef = useRef<HTMLSpanElement>(null);
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  const selectedItem = (idx) => {
+  const selectedItem = (idx: any) => {
     dispatch(setSortTypeId(idx));
     setOpen(false);
   };
 
   useEffect(() => {
-
-    const handelClick = (event) => {
-      if (event.target !== sortRef.current) {
+    const handleClick = (event: Event) => {
+      if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
-    }
-    document.body.addEventListener('click', handelClick);
-
+    };
+  
+    document.body.addEventListener('click', handleClick);
     return () => {
-      document.body.removeEventListener('click', handelClick);
-      
-    }
+      document.body.removeEventListener('click', handleClick);
+    };
   }, []);
 
   return (
@@ -51,7 +56,7 @@ const Sort = ({ valueSort }) => {
         </svg>
         <b>Сортировка по:</b>
         <span ref={sortRef} onClick={() => setOpen(!open)}>
-          {valueSort.name}
+          {sort.name}
         </span>
       </div>
       {open && (
@@ -61,7 +66,7 @@ const Sort = ({ valueSort }) => {
               <li
                 key={idx}
                 onClick={() => selectedItem(obj)}
-                className={valueSort.sortProperty === obj.sortProperty ? 'active' : ''}>
+                className={sort.sortProperty === obj.sortProperty ? 'active' : ''}>
                 {obj.name}
               </li>
             ))}
