@@ -3,19 +3,29 @@ import CartItems from '../components/CartItems';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearItems, selectCart } from '../redux/slices/cartSlice';
 import CartEmpty from '../components/CartEmpty';
+import { useEffect, useRef } from 'react';
 
 const Cart: React.FC = () => {
   const { totalPrice, items } = useSelector(selectCart);
-  const itemCount = items.reduce((sum: number, item:any) => sum + item.count, 0);
-
-
+  const itemCount = items.reduce((sum: number, item: any) => sum + item.count, 0);
+  const isMounted = useRef(false);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!isMounted.current) {
+      const json = JSON.stringify(items);
+      localStorage.setItem('cart', json);
+    }
+    isMounted.current = true;
+  }, [items]);
 
   const onClickClear = () => {
     if (window.confirm('Are you sure you want to remove pizza?')) {
       dispatch(clearItems());
     }
   };
+
+
 
   if (!totalPrice) {
     return <CartEmpty />;
@@ -99,7 +109,7 @@ const Cart: React.FC = () => {
               </div>
             </div>
             <div className="content__items-cart">
-              {items.map((item:any) => (
+              {items.map((item: any) => (
                 <CartItems key={item.id} {...item} />
               ))}
             </div>
